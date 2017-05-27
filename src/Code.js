@@ -23,20 +23,21 @@
  
 /*
 
-   Modifications by Adam Morris (http://classroomtechtools.com):
+  Modifications by Adam Morris (classroomtechtools.ctt@gmail.com):
 
    Copyright (c) 2017 Adam Morris
 
-    - Refactored with module pattern, with load() as entry point
+    - Module pattern, with load()
     - assertThrows* methods
-    - describe and it pattern of use (c.f. unittests)
-    - withContext
-
+    - Refactored with describe and it
 */
 
+/* 
+  Entry point
+*/
 load = function () {
 
-  var GsUnit = {};
+  var GsUnit = {};  // private methods
 
   /**
   * For convenience, a variable that equals "undefined"
@@ -293,7 +294,7 @@ load = function () {
         var ret = options.enter.apply(null, options.params);
         
         try {
-          ret = body(result) || ret;
+          ret = body(ret) || ret;
         } catch (err) {
           if (options.onError(err, ret) !== null)
             throw new err.constructor(err.message + ' --> ' + err.stack.toString());
@@ -483,6 +484,10 @@ load = function () {
   }
 
   return {
+     
+    FailError: GsUnit.Failure,
+    
+    contextManager: GsUnit.Util.contextManager,
       
     /**
     * Checks that two values are equal (using ===)
@@ -865,6 +870,10 @@ load = function () {
       body.call();
     },
     
+    withContext: function (body, options) {
+      GsUnit.Util.contextManager(body, options);
+    },
+    
     it: function (shouldMessage, body) {
       Logger.log('\t' + shouldMessage);
       GsUnit.Util.contextManager(body, {
@@ -882,11 +891,7 @@ load = function () {
         params: [ {} ]
       });
     },
-
-    withContext: function (body, options) {
-      GsUnit.Util.contextManager(body, options);
-    },
-       
+    
     /**
     * Causes a failure
     * @param failureMessage the message for the failure
@@ -896,3 +901,6 @@ load = function () {
     },
   };
 }
+
+
+
